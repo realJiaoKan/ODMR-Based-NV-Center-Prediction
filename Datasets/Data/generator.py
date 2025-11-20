@@ -7,21 +7,21 @@ theta_list = np.linspace(0, 180, 1000)
 phi_list = np.linspace(0, 360, 1000)
 
 width, amp = 2.25, 0.1
-freq_bins = np.linspace(2500.0, 3200.0, 2001)
+freq_bins = np.linspace(2500.0, 3200.0, 2000)
 
 filename = "Datasets/Data/data.npz"
 
 
 def shuffle_parameters():
-    para_combs = []
+    param_combs = []
     B_perm = np.random.permutation(len(B_list))
     theta_perm = np.random.permutation(len(theta_list))
     phi_perm = np.random.permutation(len(phi_list))
     for i in range(len(B_list)):
-        para_combs.append(
+        param_combs.append(
             (B_list[B_perm[i]], theta_list[theta_perm[i]], phi_list[phi_perm[i]])
         )
-    return para_combs
+    return param_combs
 
 
 def generate_spectra(param_combs):
@@ -45,14 +45,33 @@ def normalize_spectra(spectra):
     return np.array(spectra_normed)
 
 
+def param_conversion_normalized(param_combs):
+    param_converted = []
+    recover_params = []
+    for B, theta, phi in param_combs:
+        Bx = B * np.sin(np.radians(theta)) * np.cos(np.radians(phi))
+        By = B * np.sin(np.radians(theta)) * np.sin(np.radians(phi))
+        Bz = B * np.cos(np.radians(theta))
+        param_converted.append((Bx, By, Bz))
+    param_converted = np.array(param_converted)
+    for i in range(3):
+        min_val = np.min(param_converted[:, i])
+        max_val = np.max(param_converted[:, i])
+        param_converted[:, i] = (param_converted[:, i] - min_val) / (max_val - min_val)
+        recover_params.append((min_val, max_val))
+    return np.array(param_converted), recover_params
+
+
 if __name__ == "__main__":
     param_combs = shuffle_parameters()
     spectra, centers = generate_spectra(param_combs)
     X = normalize_spectra(spectra)
-    y = np.array(param_combs)
+    y, recover_params = param_conversion_normalized(param_combs)
     centers = np.array(centers)
-    np.savez_compressed(filename, X=X, y=y, centers=centers)
-    print(
-        f"Shape of X: {X.shape}, Shape of y: {y.shape}, Shape of centers: {centers.shape}"
+    np.savez_compressed(
+        filename, X=X, y=y, centers=centers, recover_params=recover_params
     )
-    print(f"Sample X: {X[:1]}, y: {y[:1]}, centers: {centers[:1]}")
+    print(
+        f"Shape of X: {X.shape}, Shape of y: {y.shape}, Shape of centers: {centers.shape}, Recover parameters: {recover_params}"
+    )
+    print(f"Sample X: {X[:1]}, y: {y[:1]}, centers: {centers[:1][:3]}")

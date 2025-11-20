@@ -1,6 +1,5 @@
 numpy
-matplotlib
-h5py
-scikit-learn
-joblib
 torch
+scikit-learn
+optuna
+matplotlib
