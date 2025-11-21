@@ -8,3 +8,5 @@ np.random.seed(RANDOM_SEED)
 torch.manual_seed(RANDOM_SEED)
 if DEVICE.type == "cuda":
     torch.cuda.manual_seed_all(RANDOM_SEED)
+
+TEST_RATIO = 0.2

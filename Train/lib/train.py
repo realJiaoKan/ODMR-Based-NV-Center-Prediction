@@ -1,3 +1,6 @@
+from tqdm import tqdm
+from tqdm_joblib import tqdm_joblib
+
 import torch
 
 from settings import *
@@ -69,6 +72,20 @@ def run(model, train_loader, test_loader, optimizer, criterion, evaluator, epoch
             f"Epoch {epoch}: train_loss={tr_loss:.4f}, train_eval={tr_acc:.4f}, "
             f"test_loss={te_loss:.4f}, test_eval={te_acc:.4f}"
         )
-        log.append((tr_loss, tr_acc, te_loss, te_acc))
+        log.append((epoch, tr_loss, tr_acc, te_loss, te_acc))
 
     return log
+
+
+def run_sklearn_ml(model, X_train, y_train, X_test, y_test, evaluator):
+    with tqdm_joblib(desc="Training Trees", total=model.n_estimators):
+        model.fit(X_train, y_train)
+
+    train_pred = model.predict(X_train)
+    test_pred = model.predict(X_test)
+
+    train_eval = evaluator(train_pred, y_train)
+    test_eval = evaluator(test_pred, y_test)
+
+    print(f"train_eval: {train_eval:.4f}, test_eval: {test_eval:.4f}")
+    return train_eval, test_eval

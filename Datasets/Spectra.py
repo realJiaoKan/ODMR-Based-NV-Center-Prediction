@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
 
-from settings import RANDOM_SEED
+from settings import RANDOM_SEED, TEST_RATIO
 
 np.random.seed(RANDOM_SEED)
 torch.manual_seed(RANDOM_SEED)
@@ -26,7 +26,7 @@ def load_raw(shuffle=False):
     return X, y
 
 
-def load_dataset(shuffle=False, test_ratio=0.2):
+def load_dataset(shuffle=False, test_ratio=TEST_RATIO):
     X, y = load_raw(shuffle=shuffle)
     X = torch.from_numpy(X).float()  # (N, L)
     y = torch.from_numpy(y).float()  # (N, 3)
@@ -38,7 +38,7 @@ def load_dataset(shuffle=False, test_ratio=0.2):
     return train_ds, test_ds
 
 
-def load_loader(shuffle=False, test_ratio=0.2, batch_size=64):
+def load_loader(shuffle=False, test_ratio=TEST_RATIO, batch_size=64):
     train_ds, test_ds = load_dataset(shuffle=shuffle, test_ratio=test_ratio)
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
@@ -57,7 +57,7 @@ def recover_B(B_normalized):
 
 
 def plot():
-    sample_loader, _ = load_loader(shuffle=True, test_ratio=0.2, batch_size=16)
+    sample_loader, _ = load_loader(shuffle=True, batch_size=16)
     X, y = next(iter(sample_loader))
     X, y = X.numpy(), y.numpy()
     fig, axes = plt.subplots(4, 1, figsize=(9, 16))

@@ -2,4 +2,6 @@ numpy
 torch
 scikit-learn
 optuna
+tqdm
+tqdm_joblib
 matplotlib
